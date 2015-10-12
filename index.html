@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" data-ng-app="app">
+    <head>
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+      <meta name="viewport" content="device-width, initial-scale=1.0, maximum-scale=1.0" />
+      <title>SignForJob</title>
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      <style>
+ @import url("//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css");</style>
+      <script src="js/angular.min.js"></script>
+      <script src="js/angular-touch.min.js"></script>
+      <script src="js/mobile-angular-ui.gestures.min.js"></script>
+      <script type="text/javascript" src="js/ui-bootstrap.js" ng-module="ui-bootstrap"></script>
+      <script type="text/javascript" src="js/anguscript.js"></script>    </head>
+    <body style="overflow:auto;background-color:#5CB85C;" ng-controller="MainController">
+        <div class="container" ng-init="workers = true;">
+            <div class="row thumbnail" style="background-image: url('img/confectionary.png');">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 pull-left">
+                    <div class="row">
+                        <h2 style="color:#f8f8f8;">Fill with the necesary details</h2>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" style="padding:0;">
+                            <p class="input-group">
+                                <input ng-click="worker_name=null" type="text" class="form-control" ng-model="worker_name">
+                                <span class="input-group-btn">
+                                    <button ng-click='add_worker(worker_name);' class="btn btn-info">Add Worker</button>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Date</span>
+                                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="input-group">
+                                    <span class="input-group-addon">Place</span>
+                                    <input class="form-control" ng-model="place" ng-click="place=null" type="text" value="Enter Place"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group form-inline">
+                            <p class="input-group">
+                                <span class="input-group-addon">Time</span>
+                                <input ng-model="period" size="50" maxlength="50" class="form-control" name="q" type="text">
+                                <select ng-model="period2" class="form-control" name="category">
+                                    <option value="hours">Hours</option>
+                                    <option value="days">Days</option>
+                                </select>      
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="input-group">
+                                    <span class="input-group-addon">Job Done</span>
+                                    <input class="form-control" ng-model="job" ng-click="job = null" type="text" value="Enter Finished Job"/>
+                            </div> 
+                        </div>  
+                    </div>
+                    <div class="row" >
+                        <div class="well list-inline" style="margin:0;">
+                            <p>Selected date is: <em>{{dt | date:'fullDate' }}</em></p>
+                            <p>Workers:
+                            <span ng-repeat="worker in workers_list">{{worker.value}}<span ng-if="!$last">,</span>
+                            </span>
+                            </p>
+                            <p>Time spent: {{period}} {{period2}} </p>
+                            <p>Worked in: {{place}} </p>
+                            <p>Job Finished: {{job}} </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style="padding:5.5% 5%;">
+                    <button ng-click="canvas = !canvas;workers = true;" class="btn btn-info col-lg-6 col-md-6 col-sm-6 col-xs-6" style="margin: 0 auto;">Click To Sign</button>
+                    <button ng-click="workers = !workers;canvas = true;" class="btn btn-info col-lg-6 col-md-6 col-sm-6 col-xs-6" style="margin: 0 auto;">Show Workers</button><center>
+                </div>
+                <div collapse="canvas" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                    <center><canvas id="Mycanvas" class="col-md-12" height="200%;" style="border: 1px solid #ccc;background-color:#fff;padding-top:5%;"></canvas></center>
+                    <div class="col-md-12" style="padding-top:20px;">
+                        <a id="download" download="Signature.png"><button class="col-md-6 col-sm-6 col-xs-6 btn btn-success">Save Image</button></a>
+                        <button class="col-md-6 col-sm-6 col-xs-6 btn btn-danger" ng-click="clearZig()">Clear</button>
+                    </div>
+                </div>
+                <div collapse="!canvas || !workers ">
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" collapse="workers" id="workers"> 
+                    <select class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="background-color:#f8f8f8;" size="20" ng-model="deleteItem">
+                        <option ng-repeat="worker in workers_list" value="{{worker.value}}">{{worker.value}}</option>
+                    </select>
+                    <button class="btn btn-danger col-md-12" ng-click="deleteWorker(deleteItem)">Delete Worker</button>
+                </div>
+            </div>
+        </div>
+        <div class="submit">
+            <button class="col-lg-12 col-md-12 col-sm-12 col-xs-12 btn btn-success">Submit</button>
+        </div>
+    </body>
+<!--<script type="text/javascript" src="js/sketchpad.js"></script> -->
+</html>
