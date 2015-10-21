@@ -1,35 +1,56 @@
 <!doctype html>
 <html lang="en" data-ng-app="app">
-    <head>
+    <head ng-init="spanish=true;">
       <meta charset="utf-8" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
       <meta name="viewport" content="width=device-width,user-scalable=no">
       <title>SignForJob</title>
       <link rel="stylesheet" href="css/bootstrap.min.css">
+      <link rel="stylesheet" href="css/custom.css">
       <script src="js/angular.min.js"></script>
       <script src="js/angular-touch.min.js"></script>
       <script type="text/javascript" src="js/ui-bootstrap.js" ng-module="ui-bootstrap"></script>
-      <script type="text/javascript" src="js/anguscript.js"></script>    </head>
-    <body style="overflow:auto;background-color:#5CB85C;" ng-controller="MainController">
-        <div class="container" ng-init="workers = true;">
-            <div class="top-menu">
-                <div class="row" style="color:#f8f8f8;border:1px solid #f8f8f8;background-color:#000;margin-bottom:15px;">
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
-                        <h2>SignJob</h2>
-                    </div>
-                    <div class="menu col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="">
-                        <h2>&#9776; Menu</h2>
-                    </div>
+      <script type="text/javascript" src="js/anguscript.js"></script>
+      <script type="text/javascript" src="js/localization.js"></script>
+    </head>
+    <body style="overflow:auto;background-color:#f8f8f8;" ng-controller="MainController">
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1634200860151650',
+          xfbml      : true,
+          version    : 'v2.5'
+        });
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+        <div class="container">
+            <div class="row top-menu" style="color:#f8f8f8;border:1px solid #f8f8f8;background-color:#000;margin-bottom:15px;">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
+                    <h2>SignJob</h2>
+                </div>
+                <div class="menu col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right" style="">
+                <h2>
+                    <a ng-click="setLang('es')" href="#"><img width="28px;" src="img/spain.png"/></a>
+                    <a ng-click="setLang('en')" href="#"><img width="28px;" src="img/england.png"/></a>
+                <h2>
                 </div>
             </div>
-            <div class="row thumbnail" style="background-image: url('img/confectionary.png');">
-                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 pull-left">
+            <div ng-clock id="changeHeight" class="row thumbnail" style="background-color: #000;height:73vh;">
+                <div ng-hide="!fillCollapse" class="col-xs-8 col-sm-8 col-md-8 col-lg-8 pull-left">
                     <div class="row">
                         <div class="col-md-12" style="padding:0;">
                             <p class="input-group">
                                 <input id="worker" ng-focus="worker_name=null;" type="text" class="form-control" ng-model="worker_name">
                                 <span class="input-group-btn">
-                                    <button ng-click='add_worker(worker_name);' class="btn btn-info">Add Worker</button>
+                                    <button ng-click='add_worker(worker_name);' class="btn btn-info">{{name_worker}}</button>
                                 </span>
                             </p>
                         </div>
@@ -37,7 +58,7 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="input-group">
-                                <span class="input-group-addon">Date</span>
+                                <span class="input-group-addon">{{name_date}}</span>
                                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
@@ -48,7 +69,7 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="input-group">
-                                    <span class="input-group-addon">Place</span>
+                                    <span class="input-group-addon">{{name_place}}</span>
                                     <input id="place" class="form-control" ng-model="place" ng-focus="place=null;" type="text" value="Enter Place"/>
                             </div>
                         </div>
@@ -56,14 +77,13 @@
                     <div class="row">
                         <div class="col-md-12" style="padding:0;margin-bottom:15px;">
                             <div class="input-group">
-                              <span class="input-group-addon">Time</span>
+                              <span class="input-group-addon">{{name_time}}</span>
                               <input type="text" class="form-control" ng-model="period" size="50" ng-focus="period=null;" maxlength="50">
                               <div class="input-group-btn">
                                 <span class="dropdown" dropdown>
                                 <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>{{period2}} <span class="caret"></span></button>
                                 <ul class="dropdown-menu" role="menu" dropdown-menu>
-                                  <li ng-click="period2='hours';"><a href="#">Hours</a></li>
-                                  <li ng-click="period2='days';"><a href="#">Days</a></li>
+                                  <li ng-repeat="ut in periods" ng-click="changePeriod(ut);"><a href="#">{{ut}}</a></li>
                                 </ul>
                                 </span>
                               </div>
@@ -73,54 +93,47 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="input-group">
-                                <span class="input-group-addon">Job Done</span>
+                                <span class="input-group-addon">{{name_job}}</span>
                                 <input id="job" class="form-control" ng-model="job" ng-focus="job=null;" type="text" value="Enter Finished Job"/>
                             </div> 
                         </div>  
                     </div>
                     <div class="row" >
-                        <div class="well list-inline" style="margin:0;">
-                            <p>Selected date is: <em>{{dt | date:'fullDate' }}</em></p>
-                            <p>Workers:
+                        <div class="well list-inline" style="margin:0;max-height:27vh;overflow:auto;">
+                            <p>{{name_date}}: <em>{{dt | date:'fullDate' }}</em></p>
+                            <p>{{name_workers}}:
                             <span ng-repeat="worker in workers_list">{{worker.value}}<span ng-if="!$last">,</span>
                             </span>
                             </p>
-                            <p>Time spent: {{period}} {{period2}} </p>
-                            <p>Worked in: {{place}} </p>
-                            <p>Job Finished: {{job}} </p>
-                            <!--<p id="touchX">dasdasdAS</p>
-                            <p id="touchY">dasdasdAS</p>
-                            <p id="offsetx">dasdasdAS</p>
-                            <p id="offsety">dasdasdAS</p>
-                            <p ng-show="tablet">{{tablet}}</p>
-                            <p id="height">dasdasdAS</p>-->
+                            <p>{{name_time}}: {{period}} {{period2}} </p>
+                            <p>{{name_place}}: {{place}} </p>
+                            <p>{{name_job}}: {{job}} </p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                    <div style="padding:15% 4%;">
-                        <button ng-click="canvas = !canvas;workers = true;" class="btn btn-info col-lg-6 col-md-6 col-sm-6 col-xs-6" style="margin: 0 auto;">Click To Sign</button>
-                        <button ng-click="workers = !workers;canvas = true;" class="btn btn-info col-lg-6 col-md-6 col-sm-6 col-xs-6" style="margin: 0 auto;">Show Workers</button>
-                    </div>
+                <div ng-hide="!canvasCollapse" class="col-xs-8 col-sm-8 col-md-8 col-lg-8 pull-left">
                     <div collapse="canvas">
-                        <center><canvas height="270%" id="Mycanvas" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border: 1px solid #ccc;background-color:#fff;padding-top:5%;"></canvas></center>
-                        <div class="col-md-12" style="padding-top:20px;">
-                            <a id="download" download="Signature.png"><button class="col-md-6 col-sm-6 col-xs-6 btn btn-success">Save Image</button></a>
-                            <button class="col-md-6 col-sm-6 col-xs-6 btn btn-danger" onclick="clearImg()">Clear</button>
-                        </div>
+                        <center><canvas height="300%;" id="Mycanvas" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border: 1px solid #ccc;background-color:#fff;padding-top:5%;"></canvas></center>
+                        <button class="col-lg-12 col-md-12 col-sm-12 col-xs-12 btn btn-danger" onclick="clearImg()">{{name_clear}}</button>
                     </div>
-                    <div collapse="!canvas || !workers ">
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" collapse="workers" id="workers"> 
-                        <select class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="background-color:#f8f8f8;" size="19" ng-model="deleteItem" ng-options="worker.value for worker in workers_list">
-                        </select>
-                        <button class="btn btn-danger col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-click="deleteWorker(deleteItem)">Delete Worker</button>
+                </div>
+                <div style="max-height:300px;overflow:auto;" ng-hide="!workersCollapse" class="col-xs-8 col-sm-8 col-md-8 col-lg-8 pull-left">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="worker in workers_list">{{worker.value}}<span style="cursor:pointer;" ng-click="deleteWorker(worker.value)" class="badge"><i class="glyphicon glyphicon-trash"></i></span></li>
+                    </ul>
+                </div>
+                <div ng-init="menuCollapse=false;" class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="margin:0;">
+                    <button class="text-center btn btn-primary col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-click="menuCollapse = !menuCollapse"><i class="glyphicon glyphicon-menu-hamburger"></i> <span class="hidden-xs hidden-sm">Menu</span></button>
+                    <div collapse="!menuCollapse">
+                        <button ng-click="fillCollapse=!fillCollapse;canvasCollapse=false;workersCollapse=false;menu();" class="btn btn-default col-lg-12 col-md-12 col-sm-12 col-xs-12">{{name_form}}</button>
+                        <button ng-click="canvasCollapse=!canvasCollapse;fillCollapse=false;workersCollapse=false;menu();" class="btn btn-default col-lg-12 col-md-12 col-sm-12 col-xs-12">{{name_signature}}</button>
+                        <button ng-click="workersCollapse=!workersCollapse;fillCollapse=false;canvasCollapse=false;menu();" class="btn btn-default col-lg-12 col-md-12 col-sm-12 col-xs-12">{{name_workers}}</button>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="submit">
-            <button class="col-lg-12 col-md-12 col-sm-12 col-xs-12 btn btn-success">Submit</button>
+            <div class="submit">
+                <button class="col-lg-12 col-md-12 col-sm-12 col-xs-12 btn btn-primary">{{name_submit}}</button>
+            </div>
         </div>
     </body>
 <script type="text/javascript" src="js/sketchpad.js"></script>
